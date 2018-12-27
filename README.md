@@ -117,9 +117,15 @@ getBasicInfos = runUSB $ do
 
 ### Device configuration
 
-By default the CY7C6521x chips are configured as UART devices. If you want to use the SPI/I<sup>2</sup>C/SPI/JTAG/PHDC interfaces, or configure the GPIO pins, you have to reconfigure the chip. The safe way to do this is to use Cypress [configuration utility]() (Windows only). It is part of the [USB-Serial SDK for Windows](http://www.cypress.com/documentation/software-and-drivers/usb-serial-software-development-kit).
+#### The safe way: Using the *Configuration Utility*
 
-The unsafe way to do this (Linux and Mac) is to use the `readConfigFlash` and `progConfigFlash` functions in `System.Cypress.Safe.USBSerial.Extras`. These two functions are not part of the original API, instead they are reverse-engineered. These functions are **absolutely not guaranteed to work**, in particular if Cypress does any firmware updates. Be careful with these two functions, you may well brick your chip.
+By default the CY7C6521x chips are configured as UART devices. If you want to use the SPI/I<sup>2</sup>C/SPI/JTAG/PHDC interfaces, or configure the GPIO pins, you have to reconfigure the chip. The safe way to do this is to use Cypress *Configuration Utility* (Windows only). It is part of the [USB-Serial SDK for Windows](http://www.cypress.com/documentation/software-and-drivers/usb-serial-software-development-kit).
+
+#### Using `readConfigFlash` and `progConfigFlash`
+
+The crude and unsafe way to do this (Linux and Mac) is to use the `readConfigFlash` and `progConfigFlash` functions in `System.Cypress.Safe.USBSerial.Extras`. These two functions are not part of the original API, instead they are reverse-engineered. These functions are **absolutely not guaranteed to work**, in particular if Cypress does any firmware updates. Be careful with these two functions, you may well brick your chip.
+
+The recommended (i.e. *only*) way to use  `readConfigFlash` and `progConfigFlash` is to configure the chip on Windows with the Configuration Utility, then export the config flash content with `readConfigFlash`, and then program the config flash contents again with `progConfigFlash` whenever necessary. This seems to work. But again: Be careful, or you will brick your chip.
 
 ## About Cypress' USB Bridging Chips
 
