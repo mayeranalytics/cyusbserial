@@ -13,13 +13,23 @@ Cypress has a cheap (4$) evaluation board [CY8CKIT-049](http://www.cypress.com/d
 
 ## The Haskell Wrapper
 
-#### Thin wrapper and 'safe' wrapper
+### Thin wrapper and 'safe' wrapper
 
-`Cyusbserial` has a basic, *thin* wrapper that very closely mirrors the C API. It is located in `System.Cypress.USBSerial`. 
+`Cyusbserial` has a basic, *thin wrapper* that very closely mirrors the C API. It is located in `System.Cypress.USBSerial`. 
 
-There is also a 'safe' wrapper with proper error handling that also manages library initialization and orderly opening/closing of handles. It is located in `System.Cypress.USBSerial.Safe`.
+There is also a *'safe' wrapper* with proper error handling that also manages library initialization and orderly opening/closing of handles. It is located in `System.Cypress.USBSerial.Safe`.
 
-#### Usage
+### Usage
+
+In most cases you'll want to use the safe wrapper,
+
+```haskell
+import System.Cypress.Safe.USBSerial
+```
+
+This is what is covered here.
+
+#### Example
 
 Let's go through a simple example:
 
@@ -28,12 +38,6 @@ Let's go through a simple example:
 3. extract library and firmware version and the firmware 'signature' 
 
 (The signature is just a four letter string that is not explained anywhere and seems to have no particular use. Let's have it anyway.)
-
-In most cases you'll want to use the safe wrapper,
-
-```haskell
-import System.Cypress.Safe.USBSerial
-```
 
 All functions in `System.Cypress.Safe.USBSerial` return the type
 
@@ -58,7 +62,7 @@ getBasicInfos = runUSB $ do
 First, you have to find the appropriate device in the device tree. The function `findDeviceWithVidPidTypeClass` lets you search the device tree for devices identified by
 
 - vendor ID (`0x04b4`), 
-- product ID (`0x0002`), 
+- product ID (`0x0002`, i.e. CY7C65211 in UART mode), 
 - device type (`DeviceType'MFG`), and 
 - device class (`DeviceClass'Vendor`).
 
@@ -111,6 +115,12 @@ getBasicInfos = runUSB $ do
         return (libVer, fwVer, sig)
 ```
 
+### Device configuration
+
+By default the CY7C6521x chips are configured as UART devices. If you want to use the SPI/I<sup>2</sup>C/SPI/JTAG/PHDC interfaces, or configure the GPIO pins, you have to reconfigure the chip. The safe way to do this is to use Cypress [configuration utility]() (Windows only). It is part of the [USB-Serial SDK for Windows](http://www.cypress.com/documentation/software-and-drivers/usb-serial-software-development-kit).
+
+The unsafe way to do this (Linux and Mac) is to use the `readConfigFlash` and `progConfigFlash` functions in `System.Cypress.Safe.USBSerial.Extras`. These two functions are not part of the original API, instead they are reverse-engineered. These functions are **absolutely not guaranteed to work**, in particular if Cypress does any firmware updates. Be careful with these two functions, you may well brick your chip.
+
 ## About Cypress' USB Bridging Chips
 
 Cypress has three USB bridging chips: *CY7C65211*, *CY7C65213* and *CY7C65215*. 
@@ -131,23 +141,25 @@ The *CY7C65211* and *CY7C65215* also have
   - Data rate up to 3 MHz for SPI master and 1 MHz for SPI slave
   - Data width: 4 bits to 16 bits
   - Support of Motorola, TI, and National SPI modes
-- Configurable **I2C interface**
+- Configurable **I<sup>2</sup>C interface**
   - Master/slave up to 400 kHz
-  - Support of multi-master I2C
+  - Support of multi-master I<sup>2</sup>C
 - JTAG interface: JTAG master for code flashing at 400 kHz
 
 | Device                                                       | Datasheet                                                | Price/$ @1000 | Remarks                                                      |
 | ------------------------------------------------------------ | -------------------------------------------------------- | ------------- | ------------------------------------------------------------ |
-| [*CY7C65211*](http://www.cypress.com/documentation/datasheets/cy7c65211-usb-serial-single-channel-uarti2cspi-bridge-capsense-and-bcd) | [datasheet](http://www.cypress.com/file/139886/download) | 1.60-1.70     | Cheap breakout board available as part of [CY8CKIT-049](http://www.cypress.com/documentation/development-kitsboards/psoc-4-cy8ckit-049-4xxx-prototyping-kits) |
-| [*CY7C65213*](http://www.cypress.com/documentation/datasheets/cy7c65213-usb-uart-lp-bridge-controller) | [datasheet](http://www.cypress.com/file/139881/download) | 1.50-1.60     | Only UART                                                    |
-| [*CY7C65215*](http://www.cypress.com/documentation/datasheets/cy7c65215-usb-serial-dual-channel-uarti2cspi-bridge-capsense-and-bcd) | [datasheet](http://www.cypress.com/file/129956/download) | 1.70-1.80     |                                                              |
+| [*CY7C65211*](http://www.cypress.com/documentation/datasheets/cy7c65211-usb-serial-single-channel-uarti2cspi-bridge-capsense-and-bcd) | [datasheet](http://www.cypress.com/file/139886/download) | 1.60-1.70     | Single SCB; Cheap breakout board available as part of [CY8CKIT-049](http://www.cypress.com/documentation/development-kitsboards/psoc-4-cy8ckit-049-4xxx-prototyping-kits) |
+| [*CY7C65213*](http://www.cypress.com/documentation/datasheets/cy7c65213-usb-uart-lp-bridge-controller) | [datasheet](http://www.cypress.com/file/139881/download) | 1.50-1.60     | One SCB, only UART capable                                   |
+| [*CY7C65215*](http://www.cypress.com/documentation/datasheets/cy7c65215-usb-serial-dual-channel-uarti2cspi-bridge-capsense-and-bcd) | [datasheet](http://www.cypress.com/file/129956/download) | 1.70-1.80     | Two SCBs, more GPIOs                                         |
+
+SCB=**S**erial **C**ommunication **B**lock
 
 #### CY7C65211
 
-| Mode         | Protocol    | PID    |
-| ------------ | ----------- | ------ |
-| UART         | CDC         | 0x0002 |
-| UART/SPI/I2C | Vendor/PHDC | 0x0004 |
+| Mode                    | Protocol    | PID    |
+| ----------------------- | ----------- | ------ |
+| UART                    | CDC         | 0x0002 |
+| UART/SPI/I<sup>2</sup>C | Vendor/PHDC | 0x0004 |
 
 #### CY7C65213
 
@@ -158,12 +170,12 @@ The *CY7C65211* and *CY7C65215* also have
 
 #### CY7C65215
 
-| Mode SCB0    | Protocol SCB0 | Mode SCB1         | Protocol SCB1 | PID    |
-| ------------ | ------------- | ----------------- | ------------- | ------ |
-| UART         | CDC           | UART              | CDC           | 0x0005 |
-| UART         | CDC           | UART/SPI/I2C/JTAG | Vendor/PHDC   | 0x0007 |
-| UART/SPI/I2C | Vendor/PHDC   | UART              | CDC           | 0x0009 |
-| UART/SPI/I2C | Vendor/PHDC   | I2C/JTAG/I2C/JTAG | Vendor/PHDC   | 0x000A |
+| Mode SCB0               | Protocol SCB0 | Mode SCB1                    | Protocol SCB1 | PID    |
+| ----------------------- | ------------- | ---------------------------- | ------------- | ------ |
+| UART                    | CDC           | UART                         | CDC           | 0x0005 |
+| UART                    | CDC           | UART/SPI/I<sup>2</sup>C/JTAG | Vendor/PHDC   | 0x0007 |
+| UART/SPI/I<sup>2</sup>C | Vendor/PHDC   | UART                         | CDC           | 0x0009 |
+| UART/SPI/I2C            | Vendor/PHDC   | I2C/JTAG/I2C/JTAG            | Vendor/PHDC   | 0x000A |
 
 ## Eval Kits
 
