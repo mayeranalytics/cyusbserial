@@ -1,0 +1,122 @@
+cabal-version:  1.12
+name:           cyusbserialhs
+version:        0.1.0.0
+description:    Please see the README on GitHub at https://bitbucket.org/mcmayer/cyusbserial/src/master/README.md
+homepage:       https://bitbucket.org/mcmayer/cyusbserial
+bug-reports:    https://bitbucket.org/mcmayer/cyusbserial
+author:         Markus Mayer
+maintainer:     mmayer@mayeranalytics.com
+copyright:      2018 Markus Mayer
+license:        LGPL-2.1
+license-file:   LICENSE
+build-type:     Custom
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/mcmayer/cyusbserialhs
+
+custom-setup
+    setup-depends: base >= 4.7 && < 5
+                 , Cabal >= 2.2
+                 , directory
+                 , filepath
+
+library
+  exposed-modules:
+      System.Cypress.USBSerial
+      System.Cypress.USBSerial.Extras
+      System.Cypress.USBSerial.I2C
+      System.Cypress.USBSerial.JTAG
+      System.Cypress.USBSerial.PHDC
+      System.Cypress.USBSerial.SPI
+      System.Cypress.USBSerial.UART
+      System.Cypress.USBSerial.Internal.FiniteLengthString
+      System.Cypress.USBSerial.Internal.USBSerial
+      System.Cypress.Safe.USBSerial
+      System.Cypress.Safe.USBSerial.Extras
+      System.Cypress.Safe.USBSerial.I2C
+      System.Cypress.Safe.USBSerial.JTAG
+      System.Cypress.Safe.USBSerial.SPI
+      System.Cypress.Safe.USBSerial.PHDC
+      System.Cypress.Safe.USBSerial.UART
+      System.Cypress.Safe.USBSerial.Internal.Utils
+  build-tools: c2hs
+  other-modules:
+      Paths_cyusbserialhs
+  hs-source-dirs:
+      src
+  C-sources: c/extras.c
+  --extra-bundled-libraries: cyusbserial
+  --extra-lib-dirs: /Users/mmayer/projects/cyusbserial/cypress/darwin
+  if os(darwin)
+    extra-libraries:
+        cyusbserial.0.1
+    Include-dirs:
+        cypress/darwin
+        c/
+    frameworks:
+  if os(linux)
+    extra-libraries:
+        cyusbserial
+    Include-dirs:
+        cypress/linux
+        c/
+  if os(windows)
+    extra-libraries:
+        cyusbserial.1.0
+    Include-dirs:
+        cypress/windows
+        c/
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , ghc-prim
+    , mtl
+    , errors
+    , bytestring
+    , text
+  ghc-options: -O2 
+  ghc-prof-options: -fprof-auto -fprof-cafs
+  default-language: Haskell2010
+
+executable cy-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_cyusbserialhs
+  hs-source-dirs:
+      app
+  if os(darwin)
+      ghc-options: -threaded -rtsopts -O2 -optl-Wl,-rpath,$@executable_path/../../../../../../cypress/darwin
+  if os(linux)
+      ghc-options: -threaded -rtsopts -O2 -optl-Wl,-rpath,$ORIGIN/../../../../../../cypress/linux
+  ghc-prof-options: -fprof-auto -fprof-cafs
+  build-depends:
+      base >=4.7 && <5
+    , cyusbserialhs
+    , mtl
+    , errors
+  default-language: Haskell2010
+
+test-suite cyusbserial-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_cyusbserialhs
+  hs-source-dirs:
+      test
+  if os(darwin)
+      ghc-options: -Wall -threaded -rtsopts -O2 -optl-Wl,-rpath,$@executable_path/../../../../../../cypress/darwin
+  if os(linux)
+      ghc-options: -Wall -threaded -rtsopts -O2 -optl-Wl,-rpath,$ORIGIN/../../../../../../cypress/linux
+  build-depends:
+      base >=4.7 && <5
+    , cyusbserialhs
+    , mtl
+    , errors
+    , QuickCheck
+    , random
+    , inline-c
+  default-language: Haskell2010
