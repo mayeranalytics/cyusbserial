@@ -9,6 +9,7 @@ import           Control.Monad.Except
 import           System.Cypress.USBSerial
 import qualified System.Cypress.Safe.USBSerial as Safe
 import           System.Cypress.Safe.USBSerial (USB, runUSB, try, throwErrorOther)
+import qualified System.Cypress.Safe.USBSerial.UART as UART
 import           System.Exit (exitSuccess, exitFailure)
 
 run :: IO (Either ReturnStatus ())
@@ -33,10 +34,10 @@ main = do
     putStrLn ""
     x <- run3
     liftIO $ print x
-    putStrLn ""
-    infos <- run4
-    print infos
-    putStrLn ""
+    --putStrLn "\nrun4"
+    --infos <- run4
+    --print infos
+    putStrLn "\nrun5"
     result <- run5
     print result
     return ()
@@ -62,14 +63,15 @@ run3 = runUSB $ do
 run4 :: IO (Either ReturnStatus [(DeviceID, DeviceInfo)])
 run4 = runUSB $ try $ Safe.findDevicesWithVidPid 0x04b4 0x0002
 
-run5 :: IO (Either ReturnStatus (LibraryVersion, FirmwareVersion, Signature))
+run5 :: IO (Either ReturnStatus (LibraryVersion, FirmwareVersion, Signature, UART.Config))
 run5 = runUSB $ do
-    infos <- try $ Safe.findDeviceWithVidPidTypeClass 0x04b4 0x0002 DeviceType'MFG DeviceClass'Vendor
-    when (null infos) $ throwErrorOther "No devices found"
+    infos <- try $ Safe.findDeviceWithVidPidTypeClass 0x04b4 0x0004 DeviceType'UART DeviceClass'Vendor
     let (devID, ifaceID) = head infos
+    liftIO $ print (devID, ifaceID)
     try $ Safe.withOpen devID ifaceID $ do
         libVer <- try Safe.getLibraryVersion
         fwVer <- try Safe.getFirmwareVersion
         sig <- try Safe.getSignature
-        try $ Safe.setGpioValue 0 0
-        return (libVer, fwVer, sig)
+        cfg <- try UART.getConfig
+        --try $ Safe.setGpioValue 0 0
+        return (libVer, fwVer, sig, cfg)

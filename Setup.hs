@@ -5,7 +5,7 @@ import           Distribution.Simple.LocalBuildInfo
 import           Distribution.Simple.Setup
 import           Distribution.Simple.Utils
 import           System.Directory
-import           System.Info(os, arch)
+import qualified System.Info as Info (os, arch)
 import           System.FilePath(joinPath)
 import           Data.Char (toLower)
 
@@ -18,14 +18,17 @@ main = defaultMainWithHooks simpleUserHooks
     , postCopy = copyExtLib
     }
 
-sysInfoString :: String
-sysInfoString = map toLower os
+os :: String
+os = map toLower Info.os
 
-libExtension :: String
-libExtension | sysInfoString == "darwin" = ".dylib"
-             | sysInfoString == "linux" = ".so"
-             | sysInfoString == "windows" || os == "mingw32" = ".dll"
-             | otherwise = error ("Unknown os: " ++ os)
+arch :: String
+arch = map toLower Info.arch
+
+libPath :: String
+libPath | os == "darwin" = joinPath ["cypress", os, "libcyusbserial.dylib"]
+        | os == "linux" = joinPath ["cypress", os, "libcyusbserial.so"]
+        | os == "windows" || os == "mingw32" = joinPath ["cypress", os, arch, "cyusbserial.dll"]
+        | otherwise = error ("Unknown os: " ++ os)
 
 updateExtraLibDirs :: LocalBuildInfo -> IO LocalBuildInfo
 updateExtraLibDirs localBuildInfo = do
@@ -33,8 +36,8 @@ updateExtraLibDirs localBuildInfo = do
         lib = fromJust $ library packageDescription
         libBuild = libBuildInfo lib 
     dir <- getCurrentDirectory
-    let extraLibDir | os == "mingw32" = joinPath [dir, "cypress", sysInfoString, arch]
-                    | otherwise       = joinPath [dir, "cypress", sysInfoString]
+    let extraLibDir | os == "mingw32" = joinPath [dir, "cypress", os, arch]
+                    | otherwise       = joinPath [dir, "cypress", os]
     putStrLn $ "extraLibDir=" ++ extraLibDir
     return localBuildInfo {
         localPkgDescr = packageDescription {
@@ -53,6 +56,5 @@ copyExtLib _ flags pkg_descr lbi = do
                 . fromFlag . copyDest
                 $ flags
     let verbosity = fromFlag $ copyVerbosity flags
-        path = joinPath ["cypress", sysInfoString, "libcyusbserial"++libExtension]
-    putStrLn $ "copy " ++ path ++ " -> " ++ libPref
-    rawSystemExit verbosity "cp" [path, libPref]
+    putStrLn $ "copyExtLib: " ++ libPath ++ " -> " ++ libPref
+    rawSystemExit verbosity "cp" [libPath, libPref]
