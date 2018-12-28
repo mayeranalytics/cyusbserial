@@ -56,20 +56,20 @@ library
         cyusbserial.0.1
     Include-dirs:
         cypress/darwin
-        c/
+        c
     frameworks:
   if os(linux)
     extra-libraries:
         cyusbserial
     Include-dirs:
         cypress/linux
-        c/
+        c
   if os(mingw32)
     extra-libraries:
         cyusbserial
     Include-dirs:
         cypress/mingw32
-        c/
+        c
   build-depends:
       base >=4.7 && <5
     , containers
