@@ -68,7 +68,7 @@ library
     extra-libraries:
         cyusbserial
     Include-dirs:
-        cypress/windows
+        cypress/mingw32
         c/
   build-depends:
       base >=4.7 && <5
