@@ -127,6 +127,10 @@ The crude and unsafe way to do this (Linux and Mac) is to use the `readConfigFla
 
 The recommended (i.e. *only*) way to use  `readConfigFlash` and `progConfigFlash` is to configure the chip on Windows with the Configuration Utility, then export the config flash content with `readConfigFlash`, and then program the config flash contents again with `progConfigFlash` whenever necessary. This seems to work. But again: Be careful, or you will brick your chip.
 
+### Windows
+
+Install the Linux Subsystem (follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-win10)).
+
 ## About Cypress' USB Bridging Chips
 
 Cypress has three USB bridging chips: *CY7C65211*, *CY7C65213* and *CY7C65215*. 
