@@ -1,9 +1,9 @@
 cabal-version:  1.12
 name:           cyusbserialhs
 version:        0.1.0.0
-description:    Please see the README on GitHub at https://bitbucket.org/mcmayer/cyusbserial/src/master/README.md
-homepage:       https://bitbucket.org/mcmayer/cyusbserial
-bug-reports:    https://bitbucket.org/mcmayer/cyusbserial
+description:    Please see the README on GitHub at https://github.com/mayeranalytics/cyusbserial
+homepage:       https://github.com/mayeranalytics/cyusbserial
+bug-reports:    https://github.com/mayeranalytics/cyusbserial/issues
 author:         Markus Mayer
 maintainer:     mmayer@mayeranalytics.com
 copyright:      2018 Markus Mayer
@@ -16,7 +16,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/mcmayer/cyusbserialhs
+  location: https://github.com/mayeranalytics/cyusbserial
 
 custom-setup
     setup-depends: base >= 4.7 && < 5
@@ -64,9 +64,9 @@ library
     Include-dirs:
         cypress/linux
         c/
-  if os(windows)
+  if os(mingw32)
     extra-libraries:
-        cyusbserial.1.0
+        cyusbserial
     Include-dirs:
         cypress/windows
         c/

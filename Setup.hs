@@ -22,9 +22,10 @@ sysInfoString :: String
 sysInfoString = map toLower os
 
 libExtension :: String
-libExtension | os == "darwin" = ".dylib"
-             | os == "linux" = ".so"
-             | os == "windows" = ".dll"
+libExtension | sysInfoString == "darwin" = ".dylib"
+             | sysInfoString == "linux" = ".so"
+             | sysInfoString == "windows" || os == "mingw32" = ".dll"
+             | otherwise = error ("Unknown os: " ++ os)
 
 updateExtraLibDirs :: LocalBuildInfo -> IO LocalBuildInfo
 updateExtraLibDirs localBuildInfo = do
@@ -32,7 +33,8 @@ updateExtraLibDirs localBuildInfo = do
         lib = fromJust $ library packageDescription
         libBuild = libBuildInfo lib 
     dir <- getCurrentDirectory
-    let extraLibDir = joinPath [dir, "cypress", sysInfoString]
+    let extraLibDir | os == "mingw32" = joinPath [dir, "cypress", sysInfoString, arch]
+                    | otherwise       = joinPath [dir, "cypress", sysInfoString]
     putStrLn $ "extraLibDir=" ++ extraLibDir
     return localBuildInfo {
         localPkgDescr = packageDescription {
