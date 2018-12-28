@@ -154,8 +154,8 @@ throwErrorOther s = throwError (ErrorOther s)
 -----------------------------------------------  4.3 CyGetListofDevices  -----------------------------------------------
 -- |Retrieve the number of USB devices connected to the host.
 --
--- In Windows family of operating systems the API retrieves only the number of devices that are attached to 
--- CyUSB3.SYS driver. For other operating systems, it retrieves the total number of USB devices present on the 
+-- In Windows family of operating systems the API retrieves only the number of devices that are attached to
+-- CyUSB3.SYS driver. For other operating systems, it retrieves the total number of USB devices present on the
 -- bus. It includes both USB Serial device as well as other devices.
 --
 -- Returns number of devices connecte, or on failure one of:
@@ -208,7 +208,7 @@ getDeviceInfo = liftIO . Cy.getDeviceInfo
 ---------------------------------------------  4.5 CyGetDeviceInfoVidPid  ----------------------------------------------
 -- |Retrieve the information of all devices with specified Vendor ID and Product ID.
 --
--- The deviceIdList contains the device numbers of all the devices with specified VID and PID. 
+-- The deviceIdList contains the device numbers of all the devices with specified VID and PID.
 -- The device of interest can be identified from the information in `DeviceInfo`, which includes interface number,
 -- string descriptor, deviceType and deviceClass.
 --
@@ -237,10 +237,10 @@ getDeviceInfoVidPid :: VidPid   -- ^ vidPid: VID and PID of device of interest
 getDeviceInfoVidPid a b = liftIO $ Cy.getDeviceInfoVidPid a b
 
 -----------------------------------------------------  USBWithHandle monad ---------------------------------------------
--- |`USBWithHandle` is the monad in which all functions that need a `Handle` must run. 
+-- |`USBWithHandle` is the monad in which all functions that need a `Handle` must run.
 -- The `USBWithHandle` context is created only by `withOpen`.
 --
--- It is essentially an `ExceptT` monad transformer with a `ReaderT` monad inside. It can be used 
+-- It is essentially an `ExceptT` monad transformer with a `ReaderT` monad inside. It can be used
 -- similarly to `USB`. It is always assured that handles are closed.
 type USBWithHandle a = ExceptT ReturnStatus (ReaderT Handle IO) a
 
@@ -274,12 +274,12 @@ withOpen d i act = do
     h <- tryIO $ open d i
     result <- liftIO $ runReaderT (runExceptT act) h
     statusClose <- liftIO $ close h
-    case result of 
-        Left err -> if statusClose == Success 
+    case result of
+        Left err -> if statusClose == Success
                     then throwError err             -- bad result but handle successfully closed
                     else throwError (ErrorOther s)  -- bad result and handle not successfully closed
                         where s = "Action failed with " ++ show err ++ ", close failed with " ++ show statusClose
-        Right result -> 
+        Right result ->
             if statusClose == Success
             then return $ Right result   -- the result is good and the handle was closed successfully
             else throwError statusClose  -- the result is good but the handle couldn't be closed
@@ -323,7 +323,7 @@ getFirmwareVersion = do
 -- * `ErrorIoTimeout` if the request is timed out.
 -- * `ErrorRequestFailed` when request is failed by USB Serial device.
 --
--- 5.3 CyGetSignature
+-- From: 5.3 CyGetSignature
 getSignature :: USBWithHandle(Either ReturnStatus Signature) -- ^ Failed `ReturnStatus` or `Signature`
 getSignature = do
     h <- lift ask
@@ -342,7 +342,7 @@ getSignature = do
 -- * `ErrorStatusMonitorExist` if notification callback is already registered.
 --
 -- See Also
--- 
+--
 -- * `CallbackEvents`
 -- * `EventNotificationCallback`
 -- * `abortEventNotification`
@@ -354,7 +354,7 @@ withEventNotification :: EventNotification
 withEventNotification e f = do
     h <- lift ask
     liftIO $ Cy.withEventNotification e h f
-                                                 
+
 --------------------------------------------  5.5 CyAbortEventNotification  --------------------------------------------
 -- |Unregister the event callback.
 --
@@ -450,7 +450,7 @@ resetDevice = do
 -- The total space available is 512 bytes. The flash area address offset is from 0x0000 to 0x00200
 -- and should be read page wise (page size is 128 bytes).
 --
--- Returns data buffer containing data or 
+-- Returns data buffer containing data or
 --
 -- * `ErrorInvalidHandle` if handle is invalid.
 -- * `ErrorInvalidParameter` if specified parameters are invalid or out of range.
@@ -549,7 +549,7 @@ findDeviceWithVidPidTypeClass vid pid typ cls = do
     numDevs <- getListOfDevices
     xs <- try $ getDeviceInfoVidPid (VidPid vid pid) numDevs
     let devIDs = fst <$> xs :: [DeviceID]
-        devTypesClasses' = (\x->zip3 [0..] (deviceInfo'deviceType $ snd x) (deviceInfo'deviceClass $ snd x)) <$> xs 
+        devTypesClasses' = (\x->zip3 [0..] (deviceInfo'deviceType $ snd x) (deviceInfo'deviceClass $ snd x)) <$> xs
             :: [[(InterfaceID, DeviceType, DeviceClass)]]
         devTypesClasses = filter (\(_,t,c)->t==typ && c==cls) <$> devTypesClasses' :: [[(InterfaceID, DeviceType, DeviceClass)]]
         fst3 (i,_,_) = i

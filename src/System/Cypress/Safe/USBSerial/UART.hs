@@ -85,7 +85,7 @@ import           Data.Word
 -- * `Config`
 -- * `getConfig`
 --
--- 6.1 CySetUartConfig
+-- From: 6.1 CySetUartConfig
 setConfig :: Config  -- ^ UART configuration
           -> USBWithHandle (Either ReturnStatus ())
 setConfig c = do

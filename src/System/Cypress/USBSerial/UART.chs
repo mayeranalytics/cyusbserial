@@ -183,7 +183,7 @@ instance Storable Config where
 -- * `Config`
 -- * `getConfig`
 --
--- 6.1 CySetUartConfig
+-- From: 6.1 CySetUartConfig
 {#fun unsafe CySetUartConfig as setConfig
   { id `Handle'           -- ^ Valid device handle
   , withConfig* `Config'  -- ^ UART configuration
