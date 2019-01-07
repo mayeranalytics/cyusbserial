@@ -122,7 +122,7 @@ getConfig = do
 -- * `write`
 --
 -- From: 7.3 CyI2cRead
-read :: Config      -- ^ I2C configuration value
+read :: DataConfig  -- ^ I2C data configuration
      -> Word32      -- ^ read length
      -> Word32      -- ^ API timeout value
      ->  USBWithHandle (Either ReturnStatus ByteString) -- ^ Failed `ReturnStatus` or `ByteString` with read data
@@ -156,7 +156,7 @@ read c l t = do
 -- * `CyI2cRead`
 --
 -- From: 7.4 CyI2cWrite
-write :: Config      -- ^ I2C configuration value
+write :: DataConfig  -- ^ I2C data configuration (slave address)
       -> ByteString  -- ^ data to write
       -> Word32      -- ^ API timeout value
       -> USBWithHandle (Either ReturnStatus Word32) -- ^ Failed `ReturnStatus` or number of bytes written

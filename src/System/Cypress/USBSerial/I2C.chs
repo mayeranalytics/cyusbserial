@@ -104,9 +104,9 @@ instance Storable Config where
 --
 -- From: 3.26 CY_I2C_DATA_CONFIG
 data DataConfig = DataConfig
-    { i2cDataConfig'slaveAddress :: Word8 -- ^ Slave address the master will communicate with
-    , i2cDataConfig'isStopBit :: Bool     -- ^ Set when stop bit is used
-    , i2cDataConfig'isNakBit :: Bool      -- ^ Set when I2C master wants to NAK the slave after read. Applicable only when doing I2C read
+    { dataConfig'slaveAddress :: Word8 -- ^ Slave address the master will communicate with
+    , dataConfig'isStopBit :: Bool     -- ^ Set when stop bit is used
+    , dataConfig'isNakBit :: Bool      -- ^ Set when I2C master wants to NAK the slave after read. Applicable only when doing I2C read
     } deriving (Show, Eq)
 
 instance Storable DataConfig where
@@ -117,9 +117,9 @@ instance Storable DataConfig where
            <*> (charToBool <$> peekByteOff p {#offsetof CY_I2C_DATA_CONFIG->isStopBit #})
            <*> (charToBool <$> peekByteOff p {#offsetof CY_I2C_DATA_CONFIG->isNakBit #})
     poke p x = do
-        {#set CY_I2C_DATA_CONFIG.slaveAddress #} p (fromIntegral $ i2cDataConfig'slaveAddress x) -- UCHAR
-        pokeByteOff p {#offsetof CY_I2C_DATA_CONFIG.isStopBit #} (boolToChar $ i2cDataConfig'isStopBit x) -- BOOL
-        pokeByteOff p {#offsetof CY_I2C_DATA_CONFIG.isNakBit #} (boolToChar $ i2cDataConfig'isNakBit x) -- BOOL
+        {#set CY_I2C_DATA_CONFIG.slaveAddress #} p (fromIntegral $ dataConfig'slaveAddress x) -- UCHAR
+        pokeByteOff p {#offsetof CY_I2C_DATA_CONFIG.isStopBit #} (boolToChar $ dataConfig'isStopBit x) -- BOOL
+        pokeByteOff p {#offsetof CY_I2C_DATA_CONFIG.isNakBit #} (boolToChar $ dataConfig'isNakBit x) -- BOOL
 
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ allocaConfig f = alloca $ \(p :: Ptr Config) -> f (castPtr p)
 --
 -- From: 7.3 CyI2cRead
 read :: Handle      -- ^ Valid device handle
-     -> Config      -- ^ I2C configuration value
+     -> DataConfig  -- ^ I2C data xfer configuration value
      -> Word32      -- ^ read length
      -> Word32      -- ^ API timeout value
      -> IO (Either ReturnStatus ByteString) -- ^ Failed `ReturnStatus` or `ByteString` with read data
@@ -233,7 +233,7 @@ read h c l t =
 --
 foreign import ccall unsafe "CyUSBSerial.h CyI2cRead"
   _cyI2cRead'_ :: Ptr () -- ^ Valid device handle
-               -> Ptr () -- ^ i2cConfig: I2C configuration value read back
+               -> Ptr () -- ^ i2cConfig: I2C data configuration
                -> Ptr () -- ^ Read buffer details
                -> CUInt  -- ^ API timeout value
                -> IO CInt
@@ -265,7 +265,7 @@ foreign import ccall unsafe "CyUSBSerial.h CyI2cRead"
 --
 -- From: 7.4 CyI2cWrite
 write :: Handle      -- ^ Valid device handle
-      -> Config      -- ^ I2C configuration value
+      -> DataConfig  -- ^ I2C data configuration (slave address)
       -> ByteString  -- ^ data to write
       -> Word32      -- ^ API timeout value
       -> IO (Either ReturnStatus Word32) -- ^ Failed `ReturnStatus` or number of bytes written
@@ -283,7 +283,7 @@ write h c bs t =
 --
 foreign import ccall unsafe "CyUSBSerial.h CyI2cWrite"
   _cyI2cWrite'_ :: Ptr () -- ^ Valid device handle
-                -> Ptr () -- ^ i2cConfig: I2C configuration value read back
+                -> Ptr () -- ^ I2C data configuration (slave address)
                 -> Ptr () -- ^ Read buffer details
                 -> CUInt  -- ^ API timeout value
                 -> IO CInt
