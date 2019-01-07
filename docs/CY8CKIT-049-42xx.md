@@ -38,3 +38,5 @@
 ## Schematic
 
 ![schematic](pics/USB-Serial-Bridge-Schematic.png)
+
+Switching Modes: [Cypress Developer Forum](https://community.cypress.com/message/151753#151753)
