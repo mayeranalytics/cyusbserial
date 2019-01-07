@@ -4,7 +4,7 @@
 
 ## Pinout
 
-| J4 pin | CY7C65211 Pin |     0      |     1      |     2      |     3      |     4     |     5      |     6     |
+| J5 pin | CY7C65211 Pin |     0      |     1      |     2      |     3      |     4     |     5      |     6     |
 | :----: | ------------- | :--------: | :--------: | :--------: | :--------: | :-------: | :--------: | :-------: |
 |        |               | 6-pin UART | 4-pin UART | 2-pin UART | SPI Master | SPI Slave | I2C Master | I2C Slave |
 |   1    | VDD           |            |            |            |            |           |            |           |
@@ -12,7 +12,7 @@
 |   3    | SCB_0         |     RX     |     RX     |     RX     |   GPIO_6   |  GPIO_6   |   GPIO_6   |  GPIO_6   |
 |   4    | SCB_4         |     TX     |     TX     |     TX     |    SCLK    |   SCLK    |   GPIO_5   |  GPIO_5   |
 
-| J5 pin | CY7C65211 Pin |     0      |     1      |     2      |     3      |     4     |     5      |     6     |
+| J6 pin | CY7C65211 Pin |     0      |     1      |     2      |     3      |     4     |     5      |     6     |
 | :----: | ------------- | :--------: | :--------: | :--------: | :--------: | :-------: | :--------: | :-------: |
 |        |               | 6-pin UART | 4-pin UART | 2-pin UART | SPI Master | SPI Slave | I2C Master | I2C Slave |
 |   1    | VDD           |            |            |            |            |           |            |           |
