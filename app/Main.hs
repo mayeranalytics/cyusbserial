@@ -3,13 +3,16 @@
 module Main where
 
 import           Control.Monad(forM_)
+import           Control.Concurrent (threadDelay)
 import           Control.Error.Safe
 import           Control.Error.Util
 import           Control.Monad.Except
+import qualified Data.ByteString.Char8 as BS
 import           System.Cypress.USBSerial
 import qualified System.Cypress.Safe.USBSerial as Safe
 import           System.Cypress.Safe.USBSerial (USB, runUSB, try, throwErrorOther)
 import qualified System.Cypress.Safe.USBSerial.UART as UART
+import qualified System.Cypress.Safe.USBSerial.I2C as I2C
 import           System.Exit (exitSuccess, exitFailure)
 
 run :: IO (Either ReturnStatus ())
@@ -29,6 +32,7 @@ main = do
     case status' of
         Left status -> libraryExit >> error ("FAIL" ++ show status)
         Right _ -> return ()
+    {-
     putStrLn ""
     status <- run2
     putStrLn ""
@@ -37,8 +41,9 @@ main = do
     --putStrLn "\nrun4"
     --infos <- run4
     --print infos
-    putStrLn "\nrun5"
-    result <- run5
+    -}
+    putStrLn "\nrun6"
+    result <- run6
     print result
     return ()
 
@@ -73,5 +78,22 @@ run5 = runUSB $ do
         fwVer <- try Safe.getFirmwareVersion
         sig <- try Safe.getSignature
         cfg <- try UART.getConfig
+        forM_ [1..] $ \i->do
+            out <- try $ UART.write (BS.pack $ replicate 10000 'a') 1000
+            liftIO $ do
+                print out
+                threadDelay 1000000   -- 50ms
         --try $ Safe.setGpioValue 0 0
+        return (libVer, fwVer, sig, cfg)
+
+run6 :: IO (Either ReturnStatus (LibraryVersion, FirmwareVersion, Signature, I2C.Config))
+run6 = runUSB $ do
+    infos <- try $ Safe.findDeviceWithVidPidTypeClass 0x04b4 0x0004 DeviceType'I2C DeviceClass'Vendor
+    let (devID, ifaceID) = head infos
+    liftIO $ print (devID, ifaceID)
+    try $ Safe.withOpen devID ifaceID $ do
+        libVer <- try Safe.getLibraryVersion
+        fwVer <- try Safe.getFirmwareVersion
+        sig <- try Safe.getSignature
+        cfg <- try I2C.getConfig
         return (libVer, fwVer, sig, cfg)
