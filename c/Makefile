@@ -2,7 +2,7 @@ OS=$(shell uname | tr A-Z a-z)
 ARCH=$(shell arch)
 DIR=${PWD}/../cypress/${OS}
 
-all: bin/cy1 bin/cy2 bin/read-config bin/chksum
+all: bin/cy1 bin/cy2 bin/read-config bin/chksum bin/i2c
 
 bin/%.o:%.c
 	gcc -c $< -I$(DIR) -o$@
@@ -29,6 +29,13 @@ else
 endif
 
 read-config: bin/read-config
+ifeq ($(OS),darwin)
+	DYLD_LIBRARY_PATH=$(DIR) $<
+else
+	LD_LIBRARY_PATH=$(DIR) $<
+endif
+
+i2c: bin/i2c
 ifeq ($(OS),darwin)
 	DYLD_LIBRARY_PATH=$(DIR) $<
 else
