@@ -7,10 +7,6 @@
 
 - the [USB-Serial Library API Guide](http://www.cypress.com/?docID=45725) Rev 1.0 (registration required)
 
-Cypress has a cheap (4$) evaluation board [CY8CKIT-049](http://www.cypress.com/documentation/development-kitsboards/psoc-4-cy8ckit-049-4xxx-prototyping-kits) for one of their PSoC chips that also has a USB-serial converter with a CY7C65211 that can be broken off.
-
-![CY8KIT49](docs/pics/CY8CKIT-049-600x224.jpg)
-
 ## The Haskell Wrapper
 
 ### Thin wrapper and 'safe' wrapper
@@ -129,9 +125,17 @@ The recommended (i.e. *only*) way to use  `readConfigFlash` and `progConfigFlash
 
 ### Windows
 
-Install the Linux Subsystem (follow the instructions [here](https://docs.microsoft.com/en-us/windows/wsl/install-win10)).
+Todo
 
-## About Cypress' USB Bridging Chips
+### Experiments
+
+Cypress has a cheap (4$) evaluation board [CY8CKIT-049](http://www.cypress.com/documentation/development-kitsboards/psoc-4-cy8ckit-049-4xxx-prototyping-kits) for one of their PSoC chips that also has a USB-serial converter with a CY7C65211 that can be broken off.
+
+![CY8KIT49](/Users/mmayer/projects/cyusbserial/docs/pics/CY8CKIT-049-600x224.jpg)
+
+Note that the USB-Serial board has **5V logic levels**. Most devices are not 5V tolerant, and you have to use a logic level converter.
+
+## Cypress' USB Bridging Chips
 
 Cypress has three USB bridging chips: *CY7C65211*, *CY7C65213* and *CY7C65215*. 
 
