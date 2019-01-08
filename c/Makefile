@@ -42,7 +42,10 @@ else
 	LD_LIBRARY_PATH=$(DIR) $<
 endif
 
+watch:
+	stack build --fast --file-watch
+
 clean:
 	rm -rf bin/*
 
-.PHONY: clean run
+.PHONY: clean run watch
