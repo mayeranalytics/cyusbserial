@@ -7,6 +7,23 @@
 
 - the [USB-Serial Library API Guide](http://www.cypress.com/?docID=45725) Rev 1.0 (registration required)
 
+### Pros and Cons
+
+Unfortunately the **Cypress bridge chips are buggy**, and Cypress [haven't published any errata](https://community.cypress.com/thread/43237), yet.
+We therefore advise caution when planning to use this chip. Although Cypress doesn't admit it, the forum discussions indicate that there are several bugs in some of the bridge chips:
+
+- [Erroneous bytes are being read (I2C)](https://community.cypress.com/thread/36996)
+- [Long pauses between reads and writes (probably a USB software issue](https://community.cypress.com/message/183563)
+- [TXLED and RXLED indicator have no relation to the actual USB transfer](https://community.cypress.com/message/183589)
+- [The USB connection hangs sometimes](https://community.cypress.com/message/162098)
+
+The support provided on the forum ["Developer Community 3.0"](https://community.cypress.com/message/162098) is rather bad. Unpleasant questions are ignored, solutions are often worked out behind closed doors. Hence **we do not use Cypress' chips right now**.
+
+### Status and future plans
+
+The wrapper works but is not as polished as it could be. Until Cypress sort out the issues we will stay away from Cypress' chips and 
+therefore only invest minimally in maintaining this library.
+
 ## The Haskell Wrapper
 
 ### Thin wrapper and 'safe' wrapper
